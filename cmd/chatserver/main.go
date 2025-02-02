@@ -13,7 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-const port = "40000"
+const grpcPort = "40000"
 
 type server struct {
 	desc.UnimplementedChatServer
@@ -36,7 +36,7 @@ func (s *server) SendMessage(ctx context.Context, req *desc.SendMessageRequest) 
 }
 
 func main() {
-	lis, err := net.Listen("tcp", "localhost:"+port)
+	lis, err := net.Listen("tcp", ":"+grpcPort)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,7 +45,7 @@ func main() {
 	reflection.Register(s)
 	desc.RegisterChatServer(s, &server{})
 
-	log.Printf("server listing %v", lis.Addr().Network())
+	log.Printf("server listing %v, port %v", lis.Addr().Network(), grpcPort)
 
 	if err = s.Serve(lis); err != nil {
 		log.Fatal(err)
