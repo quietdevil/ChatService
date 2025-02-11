@@ -8,12 +8,12 @@ install-deps-database:
 	go install github.com/pressly/goose/v3/cmd/goose@latest
 
 migration-status:
-	goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} stasus -v
+	goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} status -v
 
 migration-up:
 	goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} up -v
 
-migration-down
+migration-down:
 	goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} down -v
 
 install-deps:
@@ -36,7 +36,7 @@ generate-auth-api:
 	api/chat_v1/chat.proto
 
 build:
-	GOOS=linux GOARCH=amd64 go build -o service_linux cmd/chatserver/main.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o service_linux cmd/chatserver/main.go
 #CGO_ENABLED=0 иначе не сбилдится
 
 copy-to-server:
