@@ -9,6 +9,7 @@ import (
 	"chatservice/internal/config"
 	"chatservice/internal/repository"
 	"chatservice/internal/repository/chat"
+	"chatservice/internal/repository/logs"
 	"chatservice/internal/service"
 	"chatservice/internal/service/chats"
 	"context"
@@ -20,6 +21,7 @@ type ServiceProvider struct {
 	GrpcConfig     config.GRPCConfig
 	ClientDB       db.Client
 	txManager      db.TxManager
+	logger         repository.Logger
 	Repository     repository.Repository
 	Service        service.Service
 	Implementation *api.Implementation
@@ -69,6 +71,14 @@ func (s *ServiceProvider) ClientDb(ctx context.Context) db.Client {
 
 }
 
+func (s *ServiceProvider) Logger(ctx context.Context) repository.Logger {
+	if s.logger == nil {
+		l := logs.NewLogger(s.ClientDb(ctx))
+		s.logger = l
+	}
+	return s.logger
+}
+
 func (s *ServiceProvider) TxManager(ctx context.Context) db.TxManager {
 	if s.txManager == nil {
 		txMan := transaction.NewManager(s.ClientDb(ctx).DB())
@@ -88,7 +98,7 @@ func (s *ServiceProvider) ChatRepository(ctx context.Context) repository.Reposit
 
 func (s *ServiceProvider) ChatService(ctx context.Context) service.Service {
 	if s.Service == nil {
-		serv := chats.NewService(s.ChatRepository(ctx), s.TxManager(ctx))
+		serv := chats.NewService(s.ChatRepository(ctx), s.TxManager(ctx), s.Logger(ctx))
 		s.Service = serv
 	}
 	return s.Service
