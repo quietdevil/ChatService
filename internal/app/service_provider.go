@@ -2,6 +2,8 @@ package app
 
 import (
 	api "chatservice/internal/api/chat"
+	"chatservice/internal/client/db"
+	"chatservice/internal/client/db/pg"
 	"chatservice/internal/closer"
 	"chatservice/internal/config"
 	"chatservice/internal/repository"
@@ -10,14 +12,12 @@ import (
 	"chatservice/internal/service/chats"
 	"context"
 	"log"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type ServiceProvider struct {
 	PgConfig       config.PGConfig
 	GrpcConfig     config.GRPCConfig
-	Pool           *pgxpool.Pool
+	ClientDB       db.Client
 	Repository     repository.Repository
 	Service        service.Service
 	Implementation *api.Implementation
@@ -49,30 +49,27 @@ func (s *ServiceProvider) GRPCConfig() config.GRPCConfig {
 	return s.GrpcConfig
 }
 
-func (s *ServiceProvider) PoolPgx(ctx context.Context) *pgxpool.Pool {
-	if s.Pool == nil {
-		pool, err := pgxpool.New(ctx, s.PGConfig().DSN())
+func (s *ServiceProvider) ClientDb(ctx context.Context) db.Client {
+	if s.ClientDB == nil {
+		client, err := pg.NewDBClient(ctx, s.PGConfig().DSN())
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = pool.Ping(ctx)
+		err = client.DB().Ping(ctx)
 		if err != nil {
 			log.Fatal(err)
 		}
-		closer.Add(func() error {
-			pool.Close()
-			return nil
-		})
-		s.Pool = pool
+		closer.Add(client.Close)
+		s.ClientDB = client
 
 	}
-	return s.Pool
+	return s.ClientDB
 
 }
 
 func (s *ServiceProvider) ChatRepository(ctx context.Context) repository.Repository {
 	if s.Repository == nil {
-		repos := chat.NewRepository(s.PoolPgx(ctx))
+		repos := chat.NewRepository(s.ClientDb(ctx))
 		s.Repository = repos
 	}
 	return s.Repository

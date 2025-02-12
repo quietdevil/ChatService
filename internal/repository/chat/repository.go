@@ -1,23 +1,26 @@
 package chat
 
 import (
+	"chatservice/internal/client/db"
 	"chatservice/internal/repository"
 	"context"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type repos struct {
-	db *pgxpool.Pool
+	dbClient db.Client
 }
 
-func NewRepository(db *pgxpool.Pool) repository.Repository {
-	return &repos{db: db}
+func NewRepository(dbClient db.Client) repository.Repository {
+	return &repos{dbClient: dbClient}
 }
 
 func (r *repos) Create(ctx context.Context, usernames []string) (int, error) {
-	q := "INSERT INTO chats (usernames) VALUES ($1) RETURNING id"
-	row, err := r.db.Query(ctx, q, usernames)
+	qs := "INSERT INTO chats (usernames) VALUES ($1) RETURNING id"
+
+	q := db.Query{
+		QueryStr: qs,
+	}
+	row, err := r.dbClient.DB().ContextQuery(ctx, q, usernames)
 	if err != nil {
 		return 0, err
 	}
@@ -30,8 +33,12 @@ func (r *repos) Create(ctx context.Context, usernames []string) (int, error) {
 }
 
 func (r *repos) Delete(ctx context.Context, id int) error {
-	q := "DELETE FROM chats WHERE id=$1"
-	_, err := r.db.Exec(ctx, q, id)
+	qs := "DELETE FROM chats WHERE id=$1"
+
+	q := db.Query{
+		QueryStr: qs,
+	}
+	_, err := r.dbClient.DB().ContextExec(ctx, q, id)
 	if err != nil {
 		return err
 	}

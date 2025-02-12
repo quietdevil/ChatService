@@ -1,6 +1,7 @@
 package app
 
 import (
+	"chatservice/internal/closer"
 	"chatservice/internal/config"
 	"chatservice/pkg/chat_v1"
 	"context"
@@ -58,6 +59,10 @@ func (a *App) initDeps(ctx context.Context) error {
 }
 
 func (a *App) Run() error {
+	defer func() {
+		closer.CloseAll()
+		closer.Wait()
+	}()
 	log.Print("Server Run")
 	return a.RunGRPCServer()
 }
