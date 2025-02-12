@@ -7,14 +7,25 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+type Hadler func(context.Context) error
+
 type Client interface {
 	DB() DB
 	Close() error
 }
 
+type TxManager interface {
+	ReadCommited(context.Context, Hadler) error
+}
+
+type Transactor interface {
+	BeginTx(context.Context, pgx.TxOptions) (pgx.Tx, error)
+}
+
 type DB interface {
 	ExecQuery
 	Pinger
+	Transactor
 	Close()
 }
 

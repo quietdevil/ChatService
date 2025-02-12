@@ -1,6 +1,7 @@
 package chats
 
 import (
+	"chatservice/internal/client/db"
 	"chatservice/internal/repository"
 	"chatservice/internal/service"
 	"context"
@@ -8,10 +9,12 @@ import (
 
 type serv struct {
 	repos repository.Repository
+	tx    db.TxManager
 }
 
-func NewService(repos repository.Repository) service.Service {
-	return &serv{repos: repos}
+func NewService(repos repository.Repository, tx db.TxManager) service.Service {
+	return &serv{repos: repos,
+		tx: tx}
 }
 
 func (s *serv) Create(ctx context.Context, usernames []string) (int, error) {

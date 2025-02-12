@@ -4,6 +4,7 @@ import (
 	api "chatservice/internal/api/chat"
 	"chatservice/internal/client/db"
 	"chatservice/internal/client/db/pg"
+	"chatservice/internal/client/db/transaction"
 	"chatservice/internal/closer"
 	"chatservice/internal/config"
 	"chatservice/internal/repository"
@@ -18,6 +19,7 @@ type ServiceProvider struct {
 	PgConfig       config.PGConfig
 	GrpcConfig     config.GRPCConfig
 	ClientDB       db.Client
+	txManager      db.TxManager
 	Repository     repository.Repository
 	Service        service.Service
 	Implementation *api.Implementation
@@ -67,6 +69,14 @@ func (s *ServiceProvider) ClientDb(ctx context.Context) db.Client {
 
 }
 
+func (s *ServiceProvider) TxManager(ctx context.Context) db.TxManager {
+	if s.txManager == nil {
+		txMan := transaction.NewManager(s.ClientDb(ctx).DB())
+		s.txManager = txMan
+	}
+	return s.txManager
+}
+
 func (s *ServiceProvider) ChatRepository(ctx context.Context) repository.Repository {
 	if s.Repository == nil {
 		repos := chat.NewRepository(s.ClientDb(ctx))
@@ -78,7 +88,7 @@ func (s *ServiceProvider) ChatRepository(ctx context.Context) repository.Reposit
 
 func (s *ServiceProvider) ChatService(ctx context.Context) service.Service {
 	if s.Service == nil {
-		serv := chats.NewService(s.ChatRepository(ctx))
+		serv := chats.NewService(s.ChatRepository(ctx), s.TxManager(ctx))
 		s.Service = serv
 	}
 	return s.Service
