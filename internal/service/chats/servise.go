@@ -1,11 +1,12 @@
 package chats
 
 import (
-	"chatservice/internal/client/db"
 	"chatservice/internal/repository"
 	"chatservice/internal/service"
 	"context"
 	"fmt"
+
+	db "github.com/quietdevil/Platform_common/pkg/db"
 )
 
 type serv struct {

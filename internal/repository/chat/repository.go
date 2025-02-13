@@ -1,9 +1,10 @@
 package chat
 
 import (
-	"chatservice/internal/client/db"
 	"chatservice/internal/repository"
 	"context"
+
+	db "github.com/quietdevil/Platform_common/pkg/db"
 )
 
 type repos struct {

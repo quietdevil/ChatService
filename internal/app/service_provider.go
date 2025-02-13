@@ -2,10 +2,6 @@ package app
 
 import (
 	api "chatservice/internal/api/chat"
-	"chatservice/internal/client/db"
-	"chatservice/internal/client/db/pg"
-	"chatservice/internal/client/db/transaction"
-	"chatservice/internal/closer"
 	"chatservice/internal/config"
 	"chatservice/internal/repository"
 	"chatservice/internal/repository/chat"
@@ -14,6 +10,11 @@ import (
 	"chatservice/internal/service/chats"
 	"context"
 	"log"
+
+	closer "github.com/quietdevil/Platform_common/pkg/closer"
+	db "github.com/quietdevil/Platform_common/pkg/db"
+	pg "github.com/quietdevil/Platform_common/pkg/db/pg"
+	transaction "github.com/quietdevil/Platform_common/pkg/db/transaction"
 )
 
 type ServiceProvider struct {
@@ -28,6 +29,7 @@ type ServiceProvider struct {
 }
 
 func NewServiceProvider() *ServiceProvider {
+
 	return &ServiceProvider{}
 }
 
