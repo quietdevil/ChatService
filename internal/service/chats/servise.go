@@ -23,6 +23,7 @@ func NewService(repos repository.Repository, tx db.TxManager, logs repository.Lo
 func (s *serv) Create(ctx context.Context, usernames []string) (int, error) {
 	var id int
 	err := s.tx.ReadCommited(ctx, func(ctx context.Context) error {
+		fmt.Println("Create")
 		idD, err := s.repos.Create(ctx, usernames)
 		if err != nil {
 			return err

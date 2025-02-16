@@ -20,6 +20,7 @@ import (
 type ServiceProvider struct {
 	PgConfig       config.PGConfig
 	GrpcConfig     config.GRPCConfig
+	HTTPConfig     config.HTTPConfig
 	ClientDB       db.Client
 	txManager      db.TxManager
 	logger         repository.Logger
@@ -42,6 +43,13 @@ func (s *ServiceProvider) PGConfig() config.PGConfig {
 		s.PgConfig = c
 	}
 	return s.PgConfig
+}
+
+func (s *ServiceProvider) HttpConfig() config.HTTPConfig {
+	if s.HTTPConfig == nil {
+		s.HTTPConfig = config.NewHttpConfig()
+	}
+	return s.HTTPConfig
 }
 
 func (s *ServiceProvider) GRPCConfig() config.GRPCConfig {
