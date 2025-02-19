@@ -21,9 +21,6 @@ migration-up:
 migration-down:
 	goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} down -v
 
-# install-deps:
-# 	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1
-# 	go install -mod=mod google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 
 get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go

@@ -41,8 +41,10 @@ func (a *App) initServProv(_ context.Context) error {
 
 func (a *App) initHttpServer(ctx context.Context) error {
 	mux := runtime.NewServeMux()
+
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	err := chat_v1.RegisterChatHandlerFromEndpoint(ctx, mux, a.ServiceProvider.GRPCConfig().Address(), opts)
+
 	if err != nil {
 		return err
 	}
@@ -61,7 +63,7 @@ func (a *App) initConfig(_ context.Context) error {
 }
 
 func (a *App) initGrpcServer(ctx context.Context) error {
-	a.ServerGRPC = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	a.ServerGRPC = grpc.NewServer(grpc.Creds(insecure.NewCredentials()), grpc.UnaryInterceptor(a.ServiceProvider.AuthClient(ctx).InterceptorAuthorization))
 	reflection.Register(a.ServerGRPC)
 	chat_v1.RegisterChatServer(a.ServerGRPC, a.ServiceProvider.ImplementationChat(ctx))
 	return nil

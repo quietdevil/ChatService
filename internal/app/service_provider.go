@@ -2,13 +2,18 @@ package app
 
 import (
 	api "chatservice/internal/api/chat"
+	"chatservice/internal/client/rpc"
 	"chatservice/internal/config"
+	"chatservice/internal/interceptor/authorization"
 	"chatservice/internal/repository"
 	"chatservice/internal/repository/chat"
 	"chatservice/internal/repository/logs"
 	"chatservice/internal/service"
 	"chatservice/internal/service/chats"
 	"context"
+	"github.com/quietdevil/ServiceAuthentication/pkg/access_v1"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 
 	closer "github.com/quietdevil/Platform_common/pkg/closer"
@@ -18,20 +23,35 @@ import (
 )
 
 type ServiceProvider struct {
-	PgConfig       config.PGConfig
-	GrpcConfig     config.GRPCConfig
-	HTTPConfig     config.HTTPConfig
-	ClientDB       db.Client
-	txManager      db.TxManager
-	logger         repository.Logger
-	Repository     repository.Repository
-	Service        service.Service
-	Implementation *api.Implementation
+	PgConfig         config.PGConfig
+	GrpcConfig       config.GRPCConfig
+	HTTPConfig       config.HTTPConfig
+	GRPCClientConfig config.GRPCClientConfig
+	ClientAuth       *authorization.ClientAuth
+	ClientDB         db.Client
+	txManager        db.TxManager
+	clientGrpc       rpc.ClientGrpcV1
+	logger           repository.Logger
+	Repository       repository.Repository
+	Service          service.Service
+	Implementation   *api.Implementation
 }
 
 func NewServiceProvider() *ServiceProvider {
 
 	return &ServiceProvider{}
+}
+
+func (s *ServiceProvider) GrpcClientConfig() config.GRPCClientConfig {
+	if s.GRPCClientConfig == nil {
+		c, err := config.NewGrpcClientConfig()
+		if err != nil {
+			log.Fatal(err)
+		}
+		s.GRPCClientConfig = c
+	}
+	return s.GRPCClientConfig
+
 }
 
 func (s *ServiceProvider) PGConfig() config.PGConfig {
@@ -120,4 +140,24 @@ func (s *ServiceProvider) ImplementationChat(ctx context.Context) *api.Implement
 		s.Implementation = server
 	}
 	return s.Implementation
+}
+
+func (s *ServiceProvider) ClientGrpc(ctx context.Context) rpc.ClientGrpcV1 {
+	if s.clientGrpc == nil {
+		conn, err := grpc.NewClient(s.GrpcClientConfig().Address(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			log.Fatal(err)
+		}
+		accessClient := access_v1.NewAccessV1Client(conn)
+		s.clientGrpc = rpc.NewClientRPC(accessClient)
+	}
+	return s.clientGrpc
+}
+
+func (s *ServiceProvider) AuthClient(ctx context.Context) *authorization.ClientAuth {
+	if s.ClientAuth == nil {
+		c := authorization.NewClientAuth(s.ClientGrpc(ctx))
+		s.ClientAuth = c
+	}
+	return s.ClientAuth
 }
