@@ -24,7 +24,7 @@ func NewGrpcClientConfig() (GRPCClientConfig, error) {
 	if host == "" {
 		return nil, errors.New("don't parse grpc host")
 	}
-	return &grpcConfig{
+	return &grpcClientConfig{
 		host: host,
 		port: port,
 	}, nil

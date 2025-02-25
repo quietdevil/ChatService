@@ -1,15 +1,16 @@
 FROM golang:1.24rc2-alpine3.20 AS builder
 
-
 COPY . /chatservice/sourse
 WORKDIR /chatservice/sourse
 
 RUN go mod download
-RUN go build cmd/chatservice/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o service_chat cmd/chatserver/main.go
 
 FROM alpine:latest
 
 WORKDIR /root/
-COPY --from=builder /github.com/quitedevil/chatservice/sourse/service_linux .
-
-CMD [ "./chat_service" ]
+COPY --from=builder chatservice/sourse/service_chat .
+ADD .env .
+ADD keys/ .
+RUN chmod +x service_chat
+CMD [ "./service_chat" ]

@@ -13,7 +13,7 @@ import (
 	"context"
 	"github.com/quietdevil/ServiceAuthentication/pkg/access_v1"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	"log"
 
 	closer "github.com/quietdevil/Platform_common/pkg/closer"
@@ -27,6 +27,7 @@ type ServiceProvider struct {
 	GrpcConfig       config.GRPCConfig
 	HTTPConfig       config.HTTPConfig
 	GRPCClientConfig config.GRPCClientConfig
+	opensslConfig    config.OpensslConfig
 	ClientAuth       *authorization.ClientAuth
 	ClientDB         db.Client
 	txManager        db.TxManager
@@ -52,6 +53,17 @@ func (s *ServiceProvider) GrpcClientConfig() config.GRPCClientConfig {
 	}
 	return s.GRPCClientConfig
 
+}
+
+func (s *ServiceProvider) OpenSSLConfig() config.OpensslConfig {
+	if s.opensslConfig == nil {
+		c, err := config.NewOpensslConfig()
+		if err != nil {
+			log.Fatal(err)
+		}
+		s.opensslConfig = c
+	}
+	return s.opensslConfig
 }
 
 func (s *ServiceProvider) PGConfig() config.PGConfig {
@@ -144,7 +156,11 @@ func (s *ServiceProvider) ImplementationChat(ctx context.Context) *api.Implement
 
 func (s *ServiceProvider) ClientGrpc(ctx context.Context) rpc.ClientGrpcV1 {
 	if s.clientGrpc == nil {
-		conn, err := grpc.NewClient(s.GrpcClientConfig().Address(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+		transportCreds, err := credentials.NewClientTLSFromFile(s.OpenSSLConfig().PathPem(), "")
+		if err != nil {
+			log.Fatal(err)
+		}
+		conn, err := grpc.NewClient(s.GrpcClientConfig().Address(), grpc.WithTransportCredentials(transportCreds))
 		if err != nil {
 			log.Fatal(err)
 		}
