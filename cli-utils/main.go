@@ -1,8 +1,8 @@
 package main
 
 import (
-	"chatservice/cli-utils/cmd"
-	"chatservice/cli-utils/cmd/commands"
+	"github.com/quietdevil/ChatSevice/cli-utils/cmd"
+	"github.com/quietdevil/ChatSevice/cli-utils/cmd/commands"
 )
 
 func main() {
