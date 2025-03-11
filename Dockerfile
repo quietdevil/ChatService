@@ -8,9 +8,12 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o service_chat cmd/chatserve
 
 FROM alpine:latest
 
-WORKDIR /root/
+WORKDIR /root/app
 COPY --from=builder chatservice/sourse/service_chat .
-ADD .env .
-ADD keys/ .
+COPY --from=builder chatservice/sourse/.env .
+WORKDIR /root/app/keys
+COPY --from=builder chatservice/sourse/keys .
+
+WORKDIR /root/app
 RUN chmod +x service_chat
 CMD [ "./service_chat" ]

@@ -1,4 +1,5 @@
-.env
+prod.env
 vendor.protogen
 .idea
 keys
+cli-utils/login.json

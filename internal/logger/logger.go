@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"github.com/quietdevil/Platform_common/pkg/closer"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -9,7 +10,7 @@ var globalLogger *zap.Logger
 
 func Init(core zapcore.Core, options ...zap.Option) {
 	globalLogger = zap.New(core, options...)
-	globalLogger.Sync()
+	closer.Add(globalLogger.Sync)
 }
 
 func Info(msg string, fields ...zap.Field) {

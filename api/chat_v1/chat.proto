@@ -9,7 +9,7 @@ import "google/api/annotations.proto";
 option go_package = "chatservice/pkg/chat_v1;chat_v1";
 
 service Chat {
-    rpc Create(CreateRequest) returns (CreateResponce) {
+    rpc Create(CreateRequest) returns (CreateResponse) {
         option (google.api.http) = {
             post: "/v1/chat/create"
             body: "*"
@@ -26,13 +26,32 @@ service Chat {
             body: "*"
         };
     }
+    rpc Connect(ConnectRequest) returns (stream Message) {
+        option (google.api.http) = {
+            post: "/v1/chat/connect/{id}"
+            body: "*"
+        };
+    }
 }
+
+message ConnectRequest {
+    string id = 1;
+    string username = 2;
+}
+
+
+message Message {
+    string from = 1;
+    string text = 2;
+    google.protobuf.Timestamp timestamp = 3;
+}
+
 
 message CreateRequest {
     repeated string usernames = 1;
 }
 
-message CreateResponce {
+message CreateResponse {
     int64 id = 1;
 }
 
@@ -41,7 +60,8 @@ message DeleteRequest {
 }
 
 message SendMessageRequest {
-    string from = 1;
-    string text = 2;
-    google.protobuf.Timestamp timestamp = 3;
+    string id = 1;
+    Message message = 2;
 }
+
+

@@ -1,8 +1,8 @@
 package interceptor
 
 import (
-	"chatservice/internal/logger"
 	"context"
+	"github.com/quietdevil/ChatSevice/internal/logger"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"time"

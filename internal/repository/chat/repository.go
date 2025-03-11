@@ -1,8 +1,8 @@
 package chat
 
 import (
-	"chatservice/internal/repository"
 	"context"
+	"github.com/quietdevil/ChatSevice/internal/repository"
 
 	db "github.com/quietdevil/Platform_common/pkg/db"
 )

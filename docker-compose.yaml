@@ -1,17 +1,60 @@
-version: '3'
+version: '3.8'
 
 volumes:
   postgres_volume:
+  app_volume:
+
 
 services:
+  app-chat:
+    build: .
+    container_name: chat-service
+    ports:
+      - "${GRPC_PORT}:50000"
+    volumes:
+      - app_volume:/root/app
+    restart: unless-stopped
+    depends_on:
+      pg:
+        condition: service_healthy
+    networks:
+      - net
+
   pg:
     image: postgres:17.2-alpine3.21
+
     environment:
       - "POSTGRES_DB=${PG_DATABASE_NAME}"
       - "POSTGRES_USER=${PG_USER}"
       - "POSTGRES_PASSWORD=${PG_PASSWORD}"
-
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DATABASE_NAME}" ]
+      interval: 10s
+      retries: 5
+      start_interval: 10s
+      timeout: 10s
     ports:
       - "${PG_PORT}:5432"
     volumes:
       - postgres_volume:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - net
+
+  migrator:
+    build:
+      context: .
+      dockerfile: migration.Dockerfile
+    restart: on-failure
+    environment:
+      DB_HOST: pg
+    networks:
+      - net
+    depends_on:
+      - pg
+
+
+networks:
+  net:
+    driver: bridge
+    name: net

@@ -1,10 +1,10 @@
 package authorization
 
 import (
-	"chatservice/internal/client/rpc"
-	"chatservice/internal/logger"
 	"context"
 	"errors"
+	"github.com/quietdevil/ChatSevice/internal/client/rpc"
+	"github.com/quietdevil/ChatSevice/internal/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -28,6 +28,7 @@ func (c *ClientAuth) InterceptorAuthorization(ctx context.Context, req any, info
 		logger.Error("the token did not arrive")
 		return nil, errors.New("the token did not arrive")
 	}
+	logger.Info("the token is " + token[0])
 	newMd := metadata.New(map[string]string{"authorization": token[0]})
 	ctx = metadata.NewOutgoingContext(ctx, newMd)
 	err = c.clientAuth.Check(ctx, info.FullMethod)

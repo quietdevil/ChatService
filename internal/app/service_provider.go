@@ -1,16 +1,16 @@
 package app
 
 import (
-	api "chatservice/internal/api/chat"
-	"chatservice/internal/client/rpc"
-	"chatservice/internal/config"
-	"chatservice/internal/interceptor/authorization"
-	"chatservice/internal/repository"
-	"chatservice/internal/repository/chat"
-	"chatservice/internal/repository/logs"
-	"chatservice/internal/service"
-	"chatservice/internal/service/chats"
 	"context"
+	api "github.com/quietdevil/ChatSevice/internal/api/chat"
+	"github.com/quietdevil/ChatSevice/internal/client/rpc"
+	"github.com/quietdevil/ChatSevice/internal/config"
+	"github.com/quietdevil/ChatSevice/internal/interceptor/authorization"
+	"github.com/quietdevil/ChatSevice/internal/repository"
+	"github.com/quietdevil/ChatSevice/internal/repository/chat"
+	"github.com/quietdevil/ChatSevice/internal/repository/logs"
+	"github.com/quietdevil/ChatSevice/internal/service"
+	"github.com/quietdevil/ChatSevice/internal/service/chats"
 	"github.com/quietdevil/ServiceAuthentication/pkg/access_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -35,7 +35,7 @@ type ServiceProvider struct {
 	logger           repository.Logger
 	Repository       repository.Repository
 	Service          service.Service
-	Implementation   *api.Implementation
+	Implementation   *api.ImplementationChat
 }
 
 func NewServiceProvider() *ServiceProvider {
@@ -146,7 +146,7 @@ func (s *ServiceProvider) ChatService(ctx context.Context) service.Service {
 	return s.Service
 }
 
-func (s *ServiceProvider) ImplementationChat(ctx context.Context) *api.Implementation {
+func (s *ServiceProvider) ImplementationChat(ctx context.Context) *api.ImplementationChat {
 	if s.Implementation == nil {
 		server := api.NewImplementation(ctx, s.ChatService(ctx))
 		s.Implementation = server

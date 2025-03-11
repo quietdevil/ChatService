@@ -1,10 +1,12 @@
-package cmd
+package root
 
 import (
 	"github.com/spf13/cobra"
 )
 
-func RootCmd() *cobra.Command {
+var RootCmd *cobra.Command
+
+func rootCmd() *cobra.Command {
 	var (
 		rootCmd = &cobra.Command{
 			Use:   "tiena",
@@ -16,4 +18,8 @@ func RootCmd() *cobra.Command {
 		}
 	)
 	return rootCmd
+}
+
+func init() {
+	RootCmd = rootCmd()
 }

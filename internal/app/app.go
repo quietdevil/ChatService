@@ -1,14 +1,14 @@
 package app
 
 import (
-	"chatservice/internal/config"
-	"chatservice/internal/interceptor"
-	"chatservice/internal/interceptor/authorization"
-	"chatservice/internal/logger"
-	"chatservice/pkg/chat_v1"
 	"context"
 	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/quietdevil/ChatSevice/internal/config"
+	"github.com/quietdevil/ChatSevice/internal/interceptor"
+	"github.com/quietdevil/ChatSevice/internal/interceptor/authorization"
+	"github.com/quietdevil/ChatSevice/internal/logger"
+	"github.com/quietdevil/ChatSevice/pkg/chat_v1"
 	closer "github.com/quietdevil/Platform_common/pkg/closer"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

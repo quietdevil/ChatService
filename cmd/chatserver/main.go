@@ -1,8 +1,8 @@
 package main
 
 import (
-	"chatservice/internal/app"
 	"context"
+	"github.com/quietdevil/ChatSevice/internal/app"
 	"log"
 )
 

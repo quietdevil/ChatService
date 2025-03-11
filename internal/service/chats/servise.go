@@ -1,10 +1,10 @@
 package chats
 
 import (
-	"chatservice/internal/repository"
-	"chatservice/internal/service"
 	"context"
 	"fmt"
+	"github.com/quietdevil/ChatSevice/internal/repository"
+	"github.com/quietdevil/ChatSevice/internal/service"
 
 	db "github.com/quietdevil/Platform_common/pkg/db"
 )
